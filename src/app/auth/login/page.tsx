@@ -1,14 +1,22 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import GoogleButton from "@/components/GoogleButton";
+import LoginForm from "@/components/LoginForm";
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirect?: string }>;
+}) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (user) {
     redirect("/portal");
   }
+
+  const { redirect: redirectTo } = await searchParams;
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center bg-gray-50 py-12 px-4">
@@ -21,38 +29,18 @@ export default async function LoginPage() {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-          <form id="login-form" className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Correo Electrónico
-              </label>
-              <input
-                type="email"
-                name="email"
-                required
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
-                placeholder="tu@email.com"
-              />
+          <LoginForm redirectTo={redirectTo} />
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200" />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Contraseña
-              </label>
-              <input
-                type="password"
-                name="password"
-                required
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
-                placeholder="••••••••"
-              />
+            <div className="relative text-center">
+              <span className="bg-white px-3 text-sm text-gray-500">o</span>
             </div>
-            <button
-              type="submit"
-              className="w-full bg-amber-500 text-white py-3 rounded-lg font-semibold hover:bg-amber-600 transition-colors"
-            >
-              Iniciar Sesión
-            </button>
-          </form>
+          </div>
+
+          <GoogleButton />
 
           <div className="mt-6 text-center text-sm text-gray-600">
             ¿No tienes cuenta?{" "}

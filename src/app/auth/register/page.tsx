@@ -1,4 +1,6 @@
 import Link from "next/link";
+import GoogleButton from "@/components/GoogleButton";
+import RegisterForm from "@/components/RegisterForm";
 
 export default function RegisterPage() {
   return (
@@ -12,62 +14,18 @@ export default function RegisterPage() {
         </div>
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-          <form id="register-form" className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nombre Completo
-              </label>
-              <input
-                type="text"
-                name="full_name"
-                required
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
-                placeholder="Tu nombre"
-              />
+          <RegisterForm />
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200" />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Correo Electrónico
-              </label>
-              <input
-                type="email"
-                name="email"
-                required
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
-                placeholder="tu@email.com"
-              />
+            <div className="relative text-center">
+              <span className="bg-white px-3 text-sm text-gray-500">o</span>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Teléfono
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
-                placeholder="(614) 123-4567"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Contraseña
-              </label>
-              <input
-                type="password"
-                name="password"
-                required
-                minLength={6}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
-                placeholder="Mínimo 6 caracteres"
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-amber-500 text-white py-3 rounded-lg font-semibold hover:bg-amber-600 transition-colors"
-            >
-              Crear Cuenta
-            </button>
-          </form>
+          </div>
+
+          <GoogleButton label="Registrarte con Google" />
 
           <div className="mt-6 text-center text-sm text-gray-600">
             ¿Ya tienes cuenta?{" "}
