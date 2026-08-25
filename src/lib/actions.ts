@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { notifyNewBooking } from "@/lib/notify";
 
 export async function submitEnterpriseQuote(formData: FormData) {
   const supabase = await createClient();
@@ -88,6 +89,21 @@ export async function createBooking(formData: FormData) {
   if (error) {
     return { success: false, error: error.message };
   }
+
+  // Get user email for notification
+  const { data: userData } = await supabase.auth.getUser();
+  const userEmail = userData?.user?.email || undefined;
+
+  notifyNewBooking({
+    service_date: serviceDate,
+    service_time: serviceTime,
+    panel_count: panelCount,
+    service_type: formData.get("service_type") as string,
+    address: address.trim(),
+    notes: (formData.get("notes") as string) || null,
+    total_price: totalPrice,
+    user_email: userEmail,
+  });
 
   revalidatePath("/portal");
   revalidatePath("/portal/history");
