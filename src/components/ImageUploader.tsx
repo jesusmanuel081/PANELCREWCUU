@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface Props {
   onUploadComplete: (fileKeys: string[]) => void;
@@ -47,7 +47,9 @@ export default function ImageUploader({
 }: Props) {
   const [files, setFiles] = useState<FileUpload[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [uploadDone, setUploadDone] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
+  const autoAnalyzeTriggered = useRef(false);
 
   const addFiles = useCallback((input: FileList | null) => {
     if (!input) return;
@@ -143,6 +145,7 @@ export default function ImageUploader({
     setUploading(false);
     if (uploadedKeys.length > 0) {
       onUploadComplete(uploadedKeys);
+      setUploadDone(true);
     }
   };
 
@@ -171,6 +174,13 @@ export default function ImageUploader({
       setAnalyzing(false);
     }
   };
+
+  useEffect(() => {
+    if (uploadDone && autoAnalyze && !analyzing && !autoAnalyzeTriggered.current) {
+      autoAnalyzeTriggered.current = true;
+      analyzeImages();
+    }
+  }, [uploadDone, autoAnalyze, analyzing]);
 
   const allDone = files.length > 0 && files.every((f) => f.status === "done");
   const hasErrors = files.some((f) => f.status === "error");

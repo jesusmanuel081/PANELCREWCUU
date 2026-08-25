@@ -50,7 +50,9 @@ interface AnalysisResult {
 export default function ResultsPageClient({ diagnostic }: { diagnostic: Diagnostic }) {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
-  const [autoTriggered, setAutoTriggered] = useState(false);
+  const [localImageCount, setLocalImageCount] = useState(
+    diagnostic.diagnostic_images?.length || 0
+  );
 
   const statusMap: Record<string, { text: string; color: string }> = {
     uploaded: { text: "Imágenes subidas", color: "text-blue-600" },
@@ -61,7 +63,7 @@ export default function ResultsPageClient({ diagnostic }: { diagnostic: Diagnost
 
   const currentStatus = analyzing ? "analyzing" : result ? "completed" : diagnostic.status;
   const status = statusMap[currentStatus] || statusMap.uploaded;
-  const imageCount = diagnostic.diagnostic_images?.length || 0;
+  const imageCount = localImageCount;
 
   const displayResult = result || diagnostic.analysis_result;
   const overallLabel = result?.overall_label || diagnostic.analysis_result?.overall;
@@ -279,14 +281,14 @@ export default function ResultsPageClient({ diagnostic }: { diagnostic: Diagnost
             </p>
             <ImageUploader
               diagnosticId={diagnostic.id}
-              onUploadComplete={() => {}}
+              onUploadComplete={(keys) => setLocalImageCount((c) => c + keys.length)}
               onAnalysisStart={() => setAnalyzing(true)}
               onAnalysisComplete={(r) => {
                 setAnalyzing(false);
                 setResult(r);
               }}
               showAnalyzeButton={imageCount > 0}
-              autoAnalyze={imageCount === 0}
+              autoAnalyze={(diagnostic.diagnostic_images?.length || 0) === 0}
             />
           </div>
         )}
