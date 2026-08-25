@@ -8,6 +8,7 @@ interface Props {
   onAnalysisComplete?: (result: AnalysisResult) => void;
   diagnosticId: string;
   showAnalyzeButton?: boolean;
+  autoAnalyze?: boolean;
 }
 
 interface AnalysisResult {
@@ -42,6 +43,7 @@ export default function ImageUploader({
   onAnalysisComplete,
   diagnosticId,
   showAnalyzeButton = false,
+  autoAnalyze = false,
 }: Props) {
   const [files, setFiles] = useState<FileUpload[]>([]);
   const [uploading, setUploading] = useState(false);

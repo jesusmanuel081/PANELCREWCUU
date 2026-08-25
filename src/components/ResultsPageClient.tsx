@@ -43,12 +43,14 @@ interface AnalysisResult {
   status: string;
   overall_label: string;
   overall_confidence: number;
+  dirty_level?: number;
   predictions: Prediction[];
 }
 
 export default function ResultsPageClient({ diagnostic }: { diagnostic: Diagnostic }) {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [autoTriggered, setAutoTriggered] = useState(false);
 
   const statusMap: Record<string, { text: string; color: string }> = {
     uploaded: { text: "Imágenes subidas", color: "text-blue-600" },
@@ -68,6 +70,15 @@ export default function ResultsPageClient({ diagnostic }: { diagnostic: Diagnost
   const needsCleaning =
     overallLabel === "dirty" ||
     (overallLabel === "mixed" && (overallConfidence || 0) > 0.6);
+
+  // Calculate quote
+  const panelCount = diagnostic.panel_count || 0;
+  const pricePerPanel = needsCleaning ? 150 : 0;
+  const totalQuote = panelCount * pricePerPanel;
+  const dirtyLevel = displayResult?.dirty_level || 0;
+  const recommendedPrice = needsCleaning
+    ? Math.round(panelCount * (130 + dirtyLevel * 40))
+    : 0;
 
   return (
     <div className="bg-gray-50 min-h-[80vh]">
@@ -194,6 +205,41 @@ export default function ResultsPageClient({ diagnostic }: { diagnostic: Diagnost
           </div>
         )}
 
+        {/* Quote / Cotización */}
+        {displayResult && !analyzing && needsCleaning && panelCount > 0 && (
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-6 mb-8">
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">
+              Cotización Estimada
+            </h2>
+            <p className="text-gray-600 text-sm mb-4">
+              Basada en {panelCount} paneles · Nivel de suciedad: {Math.round(dirtyLevel * 100)}%
+            </p>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="bg-white rounded-lg p-4 text-center border border-amber-100">
+                <div className="text-sm text-gray-500">Precio por panel</div>
+                <div className="text-2xl font-bold text-amber-600">
+                  ${Math.round(130 + dirtyLevel * 40)} MXN
+                </div>
+              </div>
+              <div className="bg-white rounded-lg p-4 text-center border border-amber-100">
+                <div className="text-sm text-gray-500">Total estimado</div>
+                <div className="text-2xl font-bold text-amber-600">
+                  ${recommendedPrice.toLocaleString("es-MX")} MXN
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mb-4">
+              * Cotización estimada. El precio final puede variar según inspección en sitio.
+            </p>
+            <Link
+              href={`/portal/book?diagnostic=${diagnostic.id}&quote=${recommendedPrice}`}
+              className="inline-block bg-amber-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-amber-600 transition-colors"
+            >
+              Agendar con esta cotización
+            </Link>
+          </div>
+        )}
+
         {/* Analyzing indicator */}
         {analyzing && (
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8 text-center">
@@ -223,7 +269,7 @@ export default function ResultsPageClient({ diagnostic }: { diagnostic: Diagnost
         )}
 
         {/* Upload section */}
-        {imageCount < 12 && diagnostic.status !== "completed" && (
+        {imageCount < 12 && currentStatus !== "completed" && (
           <div className="bg-white border border-gray-100 rounded-xl p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-2">
               {imageCount === 0 ? "Sube tus imágenes" : "Agregar más imágenes"}
@@ -240,6 +286,7 @@ export default function ResultsPageClient({ diagnostic }: { diagnostic: Diagnost
                 setResult(r);
               }}
               showAnalyzeButton={imageCount > 0}
+              autoAnalyze={imageCount === 0}
             />
           </div>
         )}
