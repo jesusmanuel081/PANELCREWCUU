@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import NewDiagnosticButton from "./NewDiagnosticButton";
 import DiagnosticCard from "@/components/DiagnosticCard";
+import SignOutButton from "@/components/SignOutButton";
 
 export default async function DiagnosticPage() {
   const supabase = await createClient();
@@ -28,12 +29,15 @@ export default async function DiagnosticPage() {
               Sube fotos de tus paneles para obtener un análisis de su estado.
             </p>
           </div>
-          <Link
-            href="/portal"
-            className="text-amber-600 hover:text-amber-700 font-medium text-sm mt-2 sm:mt-0"
-          >
-            ← Volver al Portal
-          </Link>
+          <div className="flex items-center gap-4 mt-2 sm:mt-0">
+            <Link
+              href="/portal"
+              className="text-amber-600 hover:text-amber-700 font-medium text-sm"
+            >
+              ← Volver al Portal
+            </Link>
+            <SignOutButton />
+          </div>
         </div>
 
         <NewDiagnosticButton />
