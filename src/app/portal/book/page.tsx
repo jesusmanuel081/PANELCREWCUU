@@ -48,11 +48,11 @@ export default function BookServicePage() {
     setStatus("submitting");
     setErrorMsg("");
 
-    const form = new FormData(e.currentTarget);
-    const result = await createBooking(form);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const result = await createBooking(formData);
 
     if (result.success) {
-      const formData = new FormData(e.currentTarget);
       const url = buildGoogleCalendarUrl({
         date: formData.get("service_date") as string,
         time: selectedSlot,

@@ -54,17 +54,34 @@ export async function createBooking(formData: FormData) {
   }
 
   const panelCount = Number(formData.get("panel_count"));
+  const serviceTime = formData.get("service_time") as string;
+  const serviceDate = formData.get("service_date") as string;
+  const address = formData.get("address") as string;
+
+  if (!serviceDate) {
+    return { success: false, error: "Selecciona una fecha." };
+  }
+  if (!serviceTime) {
+    return { success: false, error: "Selecciona un horario." };
+  }
+  if (!address || !address.trim()) {
+    return { success: false, error: "Ingresa la dirección del servicio." };
+  }
+  if (!panelCount || panelCount < 1) {
+    return { success: false, error: "Ingresa la cantidad de paneles." };
+  }
+
   const pricePerPanel = 150;
   const totalPrice = panelCount * pricePerPanel;
 
   const { error } = await supabase.from("bookings").insert({
     user_id: user.id,
-    service_date: formData.get("service_date") as string,
-    service_time: formData.get("service_time") as string,
+    service_date: serviceDate,
+    service_time: serviceTime,
     panel_count: panelCount,
     service_type: formData.get("service_type") as string,
-    address: formData.get("address") as string,
-    notes: formData.get("notes") as string,
+    address: address.trim(),
+    notes: (formData.get("notes") as string) || null,
     total_price: totalPrice,
   });
 
