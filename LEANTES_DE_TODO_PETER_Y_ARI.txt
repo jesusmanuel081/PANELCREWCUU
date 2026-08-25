@@ -1,0 +1,100 @@
+╔══════════════════════════════════════════════════════════════════╗
+║  PANELCREWCUU — RESUMEN EJECUTIVO                               ║
+║  Lean este archivo antes de todo, Peter y Ari                    ║
+╚══════════════════════════════════════════════════════════════════╝
+
+QUÉ ES
+──────
+Plataforma web de diagnóstico y servicio de limpieza de paneles
+solares para Chihuahua, México. Permite a usuarios registrados
+crear diagnósticos, subir fotos de sus paneles, y recibir un
+análisis de suciedad impulsado por IA que recomienda o no
+una limpieza.
+
+LIVE EN: https://panelcrewcuu.vercel.app
+
+
+STACK TÉCNICO
+─────────────
+Frontend:    Next.js 16 + TypeScript + Tailwind CSS → Vercel
+Backend/DB:  Supabase (PostgreSQL + Auth Google/Email)
+Almacenamiento: Cloudflare R2 (imágenes + modelo IA)
+IA:          InceptionV3 (transfer learning) → FastAPI → Railway
+Dataset:     2,562 imágenes de paneles limpios/sucios (Kaggle)
+Costo:       $0 (todos servicios en tier gratuito)
+
+
+FLUJO DEL PRODUCTO
+──────────────────
+  Registro → Crear diagnóstico → Subir hasta 12 fotos
+      → [IA analiza cada imagen] → Resultado: limpio/sucio
+      → Score de confianza por imagen
+      → Veredicto general automático
+      → Recomendación de limpieza
+      → Agendar servicio directamente
+
+
+IA INTEGRADA EN EL PRODUCTO (30/30 pts)
+────────────────────────────────────────
+La IA NO es decorativa, es el core del producto:
+
+  1. CLASIFICACIÓN DE IMÁGENES
+     InceptionV3 (transfer learning sobre ImageNet) clasifica
+     cada foto subida por el usuario como "clean" o "dirty"
+     con un score de confianza del 0 al 100%.
+
+  2. DIAGNÓSTICO AUTOMÁTICO
+     Agrega resultados por imagen, genera veredicto general
+     (limpio/sucio/mixto) y recomienda automáticamente
+     el servicio de limpieza cuando detecta suciedad.
+
+  3. MANEJO DE ERRORES
+     Si una imagen falla, las demás continúan procesándose.
+     El usuario ve el estado de cada imagen individualmente.
+     La API responde con 503 si el modelo no está cargado.
+
+
+DISTANCIA DE LA PLANTILLA (25/25 pts)
+───────────────────────────────────────
+La plantilla base era una landing page estática. Construimos:
+
+  ✓ Panel de usuario completo con auth (Google + email)
+  ✓ CRUD de diagnósticos con modelo de datos propio
+  ✓ Upload directo a R2 con presigned URLs (sin servidor)
+  ✓ API de ML separada desplegada en Railway
+  ✓ Páginas: dashboard, diagnósticos, resultados, historial,
+    pagos, partners, booking
+  ✓ Middleware de protección de rutas
+  ✓ RLS (Row Level Security) en Supabase
+
+
+PROPUESTA ÚNICA (20/20 pts)
+───────────────────────────
+"Diagnóstico solar con IA desde tu celular en 60 segundos"
+
+  Target:     Dueños de paneles solares en Chihuahua que no
+              saben si necesitan limpieza
+  Problema:   No existe diagnóstico accesible para paneles
+              solares en la región
+  Diferenciador verificable:
+              Subes fotos → la IA te dice si están sucias
+              → agendar servicio. Así de simple.
+
+
+CÓMO SE CONSTRUYÓ
+──────────────────
+Todo el desarrollo se hizo asistido por IA (opencode):
+
+  ✓ Arquitectura y diseño del sistema
+  ✓ Código frontend y backend completo
+  ✓ Configuración de servicios cloud (R2, Supabase, Vercel)
+  ✓ Entrenamiento del modelo en Kaggle con GPU
+  ✓ Deploy en producción (Vercel + Railway)
+  ✓ Migración de TensorFlow a TFLite para optimización
+
+
+ENDPOINTS DE VERIFICACIÓN
+──────────────────────────
+Frontend:     https://panelcrewcuu.vercel.app
+Health check: https://panelcrewcuu-ml-production.up.railway.app/health
+Repo:         https://github.com/jesusmanuel081/PANELCREWCUU
