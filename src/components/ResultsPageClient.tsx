@@ -7,7 +7,7 @@ import ImageUploader from "@/components/ImageUploader";
 interface DiagnosticImage {
   id: string;
   file_name: string;
-  r2_key: string;
+  file_key: string;
   created_at: string;
 }
 

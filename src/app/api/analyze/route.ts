@@ -42,11 +42,11 @@ export async function POST(req: NextRequest) {
 
     // Generate presigned URLs for each image
     const imageUrls = await Promise.all(
-      diagnostic.diagnostic_images.map(async (img: { file_name: string; r2_key: string }) => {
+      diagnostic.diagnostic_images.map(async (img: { file_name: string; file_key: string }) => {
         const uploadRes = await fetch(`${req.nextUrl.origin}/api/upload`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ fileKey: img.r2_key }),
+          body: JSON.stringify({ fileKey: img.file_key }),
         });
 
         if (!uploadRes.ok) {
