@@ -1,149 +1,81 @@
 ╔══════════════════════════════════════════════════════════════════╗
-║  PANELCREWCUU — RESUMEN EJECUTIVO                               ║
-║  Lean este archivo antes de todo, Peter y Ari                    ║
+║  PANELCREWCUU — DECK DE PRESENTACIÓN                            ║
 ╚══════════════════════════════════════════════════════════════════╝
 
-QUÉ ES
-──────
-Plataforma web de diagnóstico y servicio de limpieza de paneles
-solares para Chihuahua, México. Permite a usuarios registrados
-crear diagnósticos, subir fotos de sus paneles, y recibir un
-análisis de suciedad impulsado por IA que recomienda o no
-una limpieza. Incluye cotización automática, reservas con
-Google Calendar y notificaciones por Telegram.
+1. NOMBRE Y DESCRIPCIÓN
+───────────────────────
+PanelCrewCUU — Plataforma de diagnóstico y limpieza de paneles
+solares con inteligencia artificial para Chihuahua, México.
 
-LIVE EN: https://panelcrewcuu.vercel.app
+Subes fotos de tus paneles solares, la IA las analiza en segundos
+y te dice si están limpios o sucios, con una cotización
+automática y opción de agendar servicio de limpieza.
 
-
-STACK TÉCNICO
-─────────────
-Frontend:       Next.js 16 + TypeScript + Tailwind CSS → Vercel
-Backend/DB:     Supabase (PostgreSQL + Auth Google/Email)
-Almacenamiento: Cloudflare R2 (imágenes + modelo IA)
-IA:             InceptionV3 (transfer learning) → FastAPI → Railway
-Dataset:        2,562 imágenes de paneles limpios/sucios (Kaggle)
-Notificaciones: Telegram Bot API (reservas nuevas)
-Costo:          $0 (todos servicios en tier gratuito)
+Para: dueños de paneles solares en Chihuahua que no saben
+si necesitan mantenimiento de limpieza.
 
 
-FLUJO DEL PRODUCTO
-──────────────────
-  1. Registro/Login (Google o email)
-  2. Crear diagnóstico (ubicación + cantidad de paneles)
-     → Disclaimer: "No se puede modificar, elimina y crea uno nuevo"
-  3. Subir hasta 12 fotos de paneles
-  4. Análisis automático con IA al terminar de subir
-  5. Resultado persistente (queda guardado en BD):
-     - Modelo entrenado al: 97%
-     - "Sucio — Necesita limpieza" o "Limpio — No necesita limpieza"
-  6. Cotización automática ($130-$170 MXN por panel según suciedad)
-  7. Agendar servicio:
-     - Horarios fijos: 9:00-12:00 o 4:00-7:00
-     - Google Calendar al confirmar
-     - Notificación Telegram al proveedor
-  8. Eliminar diagnósticos con confirmación
+2. URL PÚBLICA
+──────────────
+https://panelcrewcuu.vercel.app
 
 
-IA INTEGRADA EN EL PRODUCTO (30/30 pts)
-────────────────────────────────────────
-La IA NO es decorativa, es el core del producto:
+3. REPOSITORIO
+──────────────
+https://github.com/jesusmanuel081/PANELCREWCUU
 
-  1. CLASIFICACIÓN DE IMÁGENES
-     InceptionV3 (transfer learning sobre ImageNet) clasifica
-     cada foto subida por el usuario como "clean" o "dirty"
-     con un score de confianza del 0 al 100%.
-
-  2. DIAGNÓSTICO AUTOMÁTICO
-     - Se ejecuta automáticamente al subir la primera imagen
-     - Agrega resultados por imagen
-     - Genera veredicto general (limpio/sucio/mixto)
-     - Calcula nivel de suciedad para cotización
-     - Resultado persistente: al cerrar y volver, los datos siguen ahí
-
-  3. COTIZACIÓN INTELIGENTE
-     - Precio dinámico: $130-$170 MXN por panel
-     - Ajusta según nivel de suciedad detectado
-     - Muestra total estimado al usuario
-
-  4. MANEJO DE ERRORES
-     - Si una imagen falla, las demás continúan
-     - El usuario ve el estado de cada imagen
-     - Errores claros en español
+Colaboradores: arampersand, RoniHY
 
 
-DISTANCIA DE LA PLANTILLA (25/25 pts)
-───────────────────────────────────────
-La plantilla base era una landing page estática. Construimos:
+4. QUÉ LOS HACE ÚNICOS
+───────────────────────
+• Diagnóstico con IA desde el celular en 60 segundos — no existe
+  otro servicio en Chihuahua que ofrezca diagnóstico automatizado
+  de paneles solares con visión por computadora.
 
-  ✓ Panel de usuario completo con auth (Google + email)
-  ✓ CRUD de diagnósticos con modelo de datos propio
-  ✓ Eliminación de diagnósticos con confirmación
-  ✓ Upload directo a R2 con presigned URLs (sin servidor)
-  ✓ API de ML separada desplegada en Railway
-  ✓ Análisis automático post-upload
-  ✓ Cotización dinámica basada en diagnóstico IA
-  ✓ Reservas con horarios fijos (2 turnos)
-  ✓ Integración Google Calendar
-  ✓ Notificaciones Telegram para el proveedor
-  ✓ Páginas: dashboard, diagnósticos, resultados, historial,
-    pagos, partners, booking
-  ✓ Middleware de protección de rutas
-  ✓ RLS (Row Level Security) en Supabase
-  ✓ Validación de formularios (cliente + servidor)
-  ✓ Sign out en todas las páginas del portal
+• Cotización automática — el precio se calcula dinámicamente
+  según el nivel de suciedad que detecta la IA ($130-$170 MXN/panel).
+
+• Flujo cerrado: diagnóstico → cotización → reservar → Google
+  Calendar → notificación Telegram al proveedor. Todo sin salir
+  de la plataforma.
+
+• Modelo entrenado con 2,562 imágenes reales de paneles limpios
+  y sucios (dataset de Kaggle), exportado a TFLite para inferencia
+  rápida en producción.
 
 
-PROPUESTA ÚNICA (20/20 pts)
-───────────────────────────
-"Diagnóstico solar con IA desde tu celular en 60 segundos"
+5. FUNCIONALIDADES CON IA
+─────────────────────────
+a) Clasificación de imágenes de paneles solares
+   Qué hace:  Analiza cada foto subida y la clasifica como
+              "clean" (limpio) o "dirty" (sucio) con un score
+              de confianza del 0-100%.
+   Modelo:    InceptionV3 (transfer learning sobre ImageNet)
+              exportado a TensorFlow Lite.
+   Deploy:    FastAPI en Railway
+              (https://panelcrewcuu-ml-production.up.railway.app)
 
-  Target:     Dueños de paneles solares en Chihuahua que no
-              saben si necesitan limpieza
-  Problema:   No existe diagnóstico accesible para paneles
-              solares en la región
-  Diferenciador verificable:
-              Subes fotos → la IA te dice si están sucias
-              → cotización automática → agendar con Google Calendar
-              → notificación al proveedor por Telegram. Así de simple.
+b) Diagnóstico automático
+   Qué hace:  Agrega resultados de múltiples imágenes, genera
+              veredicto general (limpio/sucio/mixto), calcula
+              nivel de suciedad y genera cotización automática.
 
-
-BUGS CORREGIDOS
-───────────────
-  ✓ Google OAuth redireccionaba a localhost (site_url actualizado)
-  ✓ RLS infinite recursion en user_profiles (política eliminada)
-  ✓ El diagnóstico no creaba registro (error silencioso → feedback visible)
-  ✓ Botón "Analizar con IA" no aparecía (imageCount era prop estática)
-  ✓ Auto-analyze nunca se ejecutaba (prop existía sin lógica)
-  ✓ Resultado del análisis se perdía al navegar (no se persistía en BD)
-  ✓ Columna r2_key vs file_key (mismatch en analyze route)
-  ✓ Booking atascado en "Agendando..." (columna time → text)
-  ✓ FormData creado dos veces en handleSubmit
-  ✓ Imágenes mostraban emoji roto (grid → lista con nombre de archivo)
+c) Análisis en tiempo real
+   Qué hace:  Se ejecuta automáticamente al subir la primera
+              imagen, sin necesidad de dar clic adicional.
+              Resultado persistente: al cerrar y volver, los
+              datos siguen guardados.
 
 
-CÓMO SE CONSTRUYÓ
-──────────────────
-Todo el desarrollo se hizo asistido por IA (opencode):
+6. CUENTA DE PRUEBA
+───────────────────
+Email:    jesusjmglk@gmail.com
+Password: panelcrew123
 
-  ✓ Arquitectura y diseño del sistema
-  ✓ Código frontend y backend completo
-  ✓ Configuración de servicios cloud (R2, Supabase, Vercel)
-  ✓ Entrenamiento del modelo en Kaggle con GPU
-  ✓ Deploy en producción (Vercel + Railway)
-  ✓ Migración de TensorFlow a TFLite para optimización
-  ✓ Iteración continua de bugs y mejoras post-deploy
-
-
-ENDPOINTS DE VERIFICACIÓN
-──────────────────────────
-Frontend:     https://panelcrewcuu.vercel.app
-Health check: https://panelcrewcuu-ml-production.up.railway.app/health
-Repo:         https://github.com/jesusmanuel081/PANELCREWCUU
-
-
-VARIABLES DE ENTORNO (Vercel)
-─────────────────────────────
-NEXT_PUBLIC_SUPABASE_URL / ANON_KEY    → Supabase
-R2_ENDPOINT / ACCESS_KEY / SECRET / BUCKET → Cloudflare R2
-ML_API_URL                             → Railway ML API
-TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID  → Notificaciones
+Instrucciones:
+1. Ir a https://panelcrewcuu.vercel.app/auth/login
+2. Iniciar sesión con los datos de arriba
+3. Ir a "Diagnóstico" → "Nuevo Diagnóstico"
+4. Llenar ubicación y cantidad de paneles → "Crear y Subir Fotos"
+5. Subir una foto de un panel solar → el análisis es automático
