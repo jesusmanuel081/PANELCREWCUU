@@ -127,13 +127,23 @@ export default function ResultsPageClient({ diagnostic }: { diagnostic: Diagnost
                 ? `${Math.round(overallConfidence * 100)}%`
                 : "—"}
             </div>
-            <div className="text-xs text-gray-500">Confianza IA</div>
+            <div className="text-xs text-gray-500">Modelo entrenado al:</div>
           </div>
           <div className="bg-white rounded-xl border border-gray-100 p-4 text-center">
             <div className="text-2xl font-bold text-gray-900">
-              {needsCleaning ? "⚠️" : overallLabel ? "✓" : "—"}
+              {overallLabel === "dirty"
+                ? "⚠️"
+                : overallLabel === "clean"
+                ? "✓"
+                : "—"}
             </div>
-            <div className="text-xs text-gray-500">Necesita limpieza</div>
+            <div className="text-xs text-gray-500">
+              {overallLabel === "dirty"
+                ? "Sucio — Necesita limpieza"
+                : overallLabel === "clean"
+                ? "Limpio — No necesita limpieza"
+                : "Necesita limpieza"}
+            </div>
           </div>
         </div>
 
