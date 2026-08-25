@@ -108,6 +108,9 @@ export default function NewDiagnosticButton() {
           placeholder="Algo que quieras que sepamos..."
         />
       </div>
+      <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-800">
+        ⚠️ No se puede modificar la información una vez creado el diagnóstico. Si ingresaste datos incorrectos, elimínalo y crea uno nuevo.
+      </div>
       <div className="flex gap-3">
         <button
           onClick={handleCreate}

@@ -267,13 +267,14 @@ export default function ResultsPageClient({ diagnostic }: { diagnostic: Diagnost
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Imágenes ({imageCount})
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            <div className="space-y-1">
               {diagnostic.diagnostic_images.map((img) => (
                 <div
                   key={img.id}
-                  className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center text-gray-400"
+                  className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 rounded-lg px-3 py-2"
                 >
-                  🖼️
+                  <span className="text-gray-400">📄</span>
+                  <span className="truncate">{img.file_name}</span>
                 </div>
               ))}
             </div>

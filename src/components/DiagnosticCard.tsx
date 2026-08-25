@@ -1,6 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { deleteDiagnostic } from "@/lib/actions";
 
 interface DiagnosticImage {
   id: string;
@@ -26,8 +29,22 @@ const statusLabels: Record<string, { text: string; color: string }> = {
 };
 
 export default function DiagnosticCard({ diagnostic }: { diagnostic: Diagnostic }) {
+  const router = useRouter();
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const status = statusLabels[diagnostic.status] || statusLabels.uploaded;
   const imageCount = diagnostic.diagnostic_images?.length || 0;
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    const result = await deleteDiagnostic(diagnostic.id);
+    if (result.success) {
+      router.refresh();
+    } else {
+      alert(result.error || "Error al eliminar");
+      setDeleting(false);
+    }
+  };
 
   return (
     <div className="bg-white border border-gray-100 rounded-xl p-5 hover:shadow-md transition-shadow">
@@ -57,22 +74,18 @@ export default function DiagnosticCard({ diagnostic }: { diagnostic: Diagnostic 
         )}
       </div>
 
-      {/* Thumbnails */}
+      {/* Image list */}
       {imageCount > 0 && (
-        <div className="flex gap-2 mb-4">
-          {diagnostic.diagnostic_images.slice(0, 4).map((img) => (
+        <div className="space-y-1 mb-4">
+          {diagnostic.diagnostic_images.map((img) => (
             <div
               key={img.id}
-              className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-500 overflow-hidden"
+              className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 rounded-lg px-3 py-1.5"
             >
-              🖼️
+              <span className="text-gray-400">📄</span>
+              <span className="truncate">{img.file_name}</span>
             </div>
           ))}
-          {imageCount > 4 && (
-            <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-sm font-medium text-gray-600">
-              +{imageCount - 4}
-            </div>
-          )}
         </div>
       )}
 
@@ -90,6 +103,31 @@ export default function DiagnosticCard({ diagnostic }: { diagnostic: Diagnostic 
           >
             Agendar Limpieza
           </Link>
+        )}
+        {!confirmDelete ? (
+          <button
+            onClick={() => setConfirmDelete(true)}
+            className="text-gray-400 hover:text-red-500 text-sm px-2 transition-colors"
+            title="Eliminar diagnóstico"
+          >
+            🗑️
+          </button>
+        ) : (
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-red-600 transition-colors disabled:opacity-50"
+            >
+              {deleting ? "..." : "Sí"}
+            </button>
+            <button
+              onClick={() => setConfirmDelete(false)}
+              className="bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-gray-300 transition-colors"
+            >
+              No
+            </button>
+          </div>
         )}
       </div>
     </div>

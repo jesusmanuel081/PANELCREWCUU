@@ -245,6 +245,11 @@ export async function deleteDiagnostic(id: string) {
     return { success: false, error: "No autenticado" };
   }
 
+  await supabase
+    .from("diagnostic_images")
+    .delete()
+    .eq("diagnostic_id", id);
+
   const { error } = await supabase
     .from("panel_diagnostics")
     .delete()
