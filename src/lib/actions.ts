@@ -124,3 +124,129 @@ export async function getPayments() {
 
   return { success: true, data };
 }
+
+// ============================================================
+// DIAGNOSTIC ACTIONS
+// ============================================================
+
+export async function createDiagnostic(
+  panelLocation: string,
+  panelCount: number | null,
+  notes: string
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "No autenticado" };
+  }
+
+  const { data, error } = await supabase
+    .from("panel_diagnostics")
+    .insert({
+      user_id: user.id,
+      panel_location: panelLocation || null,
+      panel_count: panelCount,
+      notes: notes || null,
+    })
+    .select("id")
+    .single();
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { success: true, diagnosticId: data.id };
+}
+
+export async function saveDiagnosticImage(
+  diagnosticId: string,
+  fileKey: string,
+  fileName: string,
+  fileSize: number
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "No autenticado" };
+  }
+
+  const { error } = await supabase.from("diagnostic_images").insert({
+    diagnostic_id: diagnosticId,
+    file_key: fileKey,
+    file_name: fileName,
+    file_size: fileSize,
+  });
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { success: true };
+}
+
+export async function getUserDiagnostics() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "No autenticado", data: [] };
+  }
+
+  const { data, error } = await supabase
+    .from("panel_diagnostics")
+    .select("*, diagnostic_images(*)")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    return { success: false, error: error.message, data: [] };
+  }
+
+  return { success: true, data };
+}
+
+export async function getDiagnosticById(id: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "No autenticado" };
+  }
+
+  const { data, error } = await supabase
+    .from("panel_diagnostics")
+    .select("*, diagnostic_images(*)")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .single();
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  return { success: true, data };
+}
+
+export async function deleteDiagnostic(id: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "No autenticado" };
+  }
+
+  const { error } = await supabase
+    .from("panel_diagnostics")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath("/portal/diagnostic");
+  return { success: true };
+}
