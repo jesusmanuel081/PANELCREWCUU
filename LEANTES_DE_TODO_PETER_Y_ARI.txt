@@ -70,8 +70,8 @@ c) Análisis en tiempo real
 
 6. CUENTA DE PRUEBA
 ───────────────────
-Email:    jesusjmglk@gmail.com
-Password: panelcrew123
+Email:    [proporcionar al evaluator]
+Password: [proporcionar al evaluator]
 
 Instrucciones:
 1. Ir a https://panelcrewcuu.vercel.app/auth/login
