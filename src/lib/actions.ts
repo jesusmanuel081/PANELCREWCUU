@@ -141,13 +141,21 @@ export async function createDiagnostic(
     return { success: false, error: "No autenticado" };
   }
 
+  if (!panelLocation || !panelLocation.trim()) {
+    return { success: false, error: "La ubicación de los paneles es obligatoria." };
+  }
+
+  if (!panelCount || panelCount < 1) {
+    return { success: false, error: "Ingresa la cantidad de paneles (mínimo 1)." };
+  }
+
   const { data, error } = await supabase
     .from("panel_diagnostics")
     .insert({
       user_id: user.id,
-      panel_location: panelLocation || null,
+      panel_location: panelLocation.trim(),
       panel_count: panelCount,
-      notes: notes || null,
+      notes: notes?.trim() || null,
     })
     .select("id")
     .single();
