@@ -202,7 +202,7 @@ export default function ResultsPageClient({ diagnostic }: { diagnostic: Diagnost
               <p className="text-gray-700 mt-4">
                 {needsCleaning
                   ? "Se recomienda limpieza de paneles para mantener la eficiencia energética."
-                  : "Los paneles se encuentran en buen estado."}
+                  : "Los paneles se encuentran en buen estado. Sin embargo, una limpieza profesional periódica (cada 6 meses) prolonga su vida útil y asegura máxima eficiencia. ¡Agenda tu mantenimiento preventivo!"}
               </p>
             </div>
 
@@ -212,6 +212,14 @@ export default function ResultsPageClient({ diagnostic }: { diagnostic: Diagnost
                 className="mt-4 inline-block bg-amber-500 text-white px-6 py-2 rounded-lg font-medium hover:bg-amber-600 transition-colors"
               >
                 Agendar Limpieza
+              </Link>
+            )}
+            {!needsCleaning && (
+              <Link
+                href={`/portal/book?diagnostic=${diagnostic.id}`}
+                className="mt-4 inline-block bg-gray-100 text-gray-700 px-6 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              >
+                Agendar Mantenimiento Preventivo
               </Link>
             )}
           </div>
