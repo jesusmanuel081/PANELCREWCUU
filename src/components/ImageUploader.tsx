@@ -4,7 +4,24 @@ import { useCallback, useState } from "react";
 
 interface Props {
   onUploadComplete: (fileKeys: string[]) => void;
+  onAnalysisStart?: () => void;
+  onAnalysisComplete?: (result: AnalysisResult) => void;
   diagnosticId: string;
+  showAnalyzeButton?: boolean;
+}
+
+interface AnalysisResult {
+  diagnostic_id: string;
+  status: string;
+  overall_label: string;
+  overall_confidence: number;
+  predictions: Array<{
+    filename: string;
+    label: string;
+    confidence: number;
+    clean_prob: number;
+    dirty_prob: number;
+  }>;
 }
 
 interface FileUpload {
@@ -19,9 +36,16 @@ const MAX_IMAGES = 12;
 const MAX_SIZE_MB = 10;
 const ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
 
-export default function ImageUploader({ onUploadComplete, diagnosticId }: Props) {
+export default function ImageUploader({
+  onUploadComplete,
+  onAnalysisStart,
+  onAnalysisComplete,
+  diagnosticId,
+  showAnalyzeButton = false,
+}: Props) {
   const [files, setFiles] = useState<FileUpload[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
 
   const addFiles = useCallback((input: FileList | null) => {
     if (!input) return;
@@ -120,6 +144,32 @@ export default function ImageUploader({ onUploadComplete, diagnosticId }: Props)
     }
   };
 
+  const analyzeImages = async () => {
+    setAnalyzing(true);
+    onAnalysisStart?.();
+
+    try {
+      const res = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ diagnosticId }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Analysis failed");
+      }
+
+      const result = await res.json();
+      onAnalysisComplete?.(result);
+    } catch (err) {
+      console.error("Analysis error:", err);
+      alert((err as Error).message || "Error analyzing images");
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
   const allDone = files.length > 0 && files.every((f) => f.status === "done");
   const hasErrors = files.some((f) => f.status === "error");
 
@@ -208,7 +258,16 @@ export default function ImageUploader({ onUploadComplete, diagnosticId }: Props)
                 : `Subir ${files.filter((f) => f.status !== "done").length} imágenes`}
             </button>
           )}
-          {allDone && (
+          {allDone && showAnalyzeButton && (
+            <button
+              onClick={analyzeImages}
+              disabled={analyzing}
+              className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50"
+            >
+              {analyzing ? "Analizando con IA..." : "🔍 Analizar con IA"}
+            </button>
+          )}
+          {allDone && !showAnalyzeButton && (
             <div className="flex-1 bg-green-50 border border-green-200 text-green-700 py-3 rounded-lg font-medium text-center">
               ✓ {files.length} imágenes subidas correctamente
             </div>

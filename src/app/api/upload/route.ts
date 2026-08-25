@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getPresignedUploadUrl, buildFileKey } from "@/lib/r2";
+import { getPresignedUploadUrl, getPresignedDownloadUrl, buildFileKey } from "@/lib/r2";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB
@@ -53,6 +53,24 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     return NextResponse.json(
       { error: "Error generando URL de subida" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  const { fileKey } = await request.json();
+
+  if (!fileKey) {
+    return NextResponse.json({ error: "fileKey required" }, { status: 400 });
+  }
+
+  try {
+    const downloadUrl = await getPresignedDownloadUrl(fileKey);
+    return NextResponse.json({ downloadUrl });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Error generando URL de descarga" },
       { status: 500 }
     );
   }
