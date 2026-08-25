@@ -9,29 +9,39 @@ Plataforma web de diagnóstico y servicio de limpieza de paneles
 solares para Chihuahua, México. Permite a usuarios registrados
 crear diagnósticos, subir fotos de sus paneles, y recibir un
 análisis de suciedad impulsado por IA que recomienda o no
-una limpieza.
+una limpieza. Incluye cotización automática, reservas con
+Google Calendar y notificaciones por Telegram.
 
 LIVE EN: https://panelcrewcuu.vercel.app
 
 
 STACK TÉCNICO
 ─────────────
-Frontend:    Next.js 16 + TypeScript + Tailwind CSS → Vercel
-Backend/DB:  Supabase (PostgreSQL + Auth Google/Email)
+Frontend:       Next.js 16 + TypeScript + Tailwind CSS → Vercel
+Backend/DB:     Supabase (PostgreSQL + Auth Google/Email)
 Almacenamiento: Cloudflare R2 (imágenes + modelo IA)
-IA:          InceptionV3 (transfer learning) → FastAPI → Railway
-Dataset:     2,562 imágenes de paneles limpios/sucios (Kaggle)
-Costo:       $0 (todos servicios en tier gratuito)
+IA:             InceptionV3 (transfer learning) → FastAPI → Railway
+Dataset:        2,562 imágenes de paneles limpios/sucios (Kaggle)
+Notificaciones: Telegram Bot API (reservas nuevas)
+Costo:          $0 (todos servicios en tier gratuito)
 
 
 FLUJO DEL PRODUCTO
 ──────────────────
-  Registro → Crear diagnóstico → Subir hasta 12 fotos
-      → [IA analiza cada imagen] → Resultado: limpio/sucio
-      → Score de confianza por imagen
-      → Veredicto general automático
-      → Recomendación de limpieza
-      → Agendar servicio directamente
+  1. Registro/Login (Google o email)
+  2. Crear diagnóstico (ubicación + cantidad de paneles)
+     → Disclaimer: "No se puede modificar, elimina y crea uno nuevo"
+  3. Subir hasta 12 fotos de paneles
+  4. Análisis automático con IA al terminar de subir
+  5. Resultado persistente (queda guardado en BD):
+     - Modelo entrenado al: 97%
+     - "Sucio — Necesita limpieza" o "Limpio — No necesita limpieza"
+  6. Cotización automática ($130-$170 MXN por panel según suciedad)
+  7. Agendar servicio:
+     - Horarios fijos: 9:00-12:00 o 4:00-7:00
+     - Google Calendar al confirmar
+     - Notificación Telegram al proveedor
+  8. Eliminar diagnósticos con confirmación
 
 
 IA INTEGRADA EN EL PRODUCTO (30/30 pts)
@@ -44,14 +54,21 @@ La IA NO es decorativa, es el core del producto:
      con un score de confianza del 0 al 100%.
 
   2. DIAGNÓSTICO AUTOMÁTICO
-     Agrega resultados por imagen, genera veredicto general
-     (limpio/sucio/mixto) y recomienda automáticamente
-     el servicio de limpieza cuando detecta suciedad.
+     - Se ejecuta automáticamente al subir la primera imagen
+     - Agrega resultados por imagen
+     - Genera veredicto general (limpio/sucio/mixto)
+     - Calcula nivel de suciedad para cotización
+     - Resultado persistente: al cerrar y volver, los datos siguen ahí
 
-  3. MANEJO DE ERRORES
-     Si una imagen falla, las demás continúan procesándose.
-     El usuario ve el estado de cada imagen individualmente.
-     La API responde con 503 si el modelo no está cargado.
+  3. COTIZACIÓN INTELIGENTE
+     - Precio dinámico: $130-$170 MXN por panel
+     - Ajusta según nivel de suciedad detectado
+     - Muestra total estimado al usuario
+
+  4. MANEJO DE ERRORES
+     - Si una imagen falla, las demás continúan
+     - El usuario ve el estado de cada imagen
+     - Errores claros en español
 
 
 DISTANCIA DE LA PLANTILLA (25/25 pts)
@@ -60,12 +77,20 @@ La plantilla base era una landing page estática. Construimos:
 
   ✓ Panel de usuario completo con auth (Google + email)
   ✓ CRUD de diagnósticos con modelo de datos propio
+  ✓ Eliminación de diagnósticos con confirmación
   ✓ Upload directo a R2 con presigned URLs (sin servidor)
   ✓ API de ML separada desplegada en Railway
+  ✓ Análisis automático post-upload
+  ✓ Cotización dinámica basada en diagnóstico IA
+  ✓ Reservas con horarios fijos (2 turnos)
+  ✓ Integración Google Calendar
+  ✓ Notificaciones Telegram para el proveedor
   ✓ Páginas: dashboard, diagnósticos, resultados, historial,
     pagos, partners, booking
   ✓ Middleware de protección de rutas
   ✓ RLS (Row Level Security) en Supabase
+  ✓ Validación de formularios (cliente + servidor)
+  ✓ Sign out en todas las páginas del portal
 
 
 PROPUESTA ÚNICA (20/20 pts)
@@ -78,7 +103,22 @@ PROPUESTA ÚNICA (20/20 pts)
               solares en la región
   Diferenciador verificable:
               Subes fotos → la IA te dice si están sucias
-              → agendar servicio. Así de simple.
+              → cotización automática → agendar con Google Calendar
+              → notificación al proveedor por Telegram. Así de simple.
+
+
+BUGS CORREGIDOS
+───────────────
+  ✓ Google OAuth redireccionaba a localhost (site_url actualizado)
+  ✓ RLS infinite recursion en user_profiles (política eliminada)
+  ✓ El diagnóstico no creaba registro (error silencioso → feedback visible)
+  ✓ Botón "Analizar con IA" no aparecía (imageCount era prop estática)
+  ✓ Auto-analyze nunca se ejecutaba (prop existía sin lógica)
+  ✓ Resultado del análisis se perdía al navegar (no se persistía en BD)
+  ✓ Columna r2_key vs file_key (mismatch en analyze route)
+  ✓ Booking atascado en "Agendando..." (columna time → text)
+  ✓ FormData creado dos veces en handleSubmit
+  ✓ Imágenes mostraban emoji roto (grid → lista con nombre de archivo)
 
 
 CÓMO SE CONSTRUYÓ
@@ -91,6 +131,7 @@ Todo el desarrollo se hizo asistido por IA (opencode):
   ✓ Entrenamiento del modelo en Kaggle con GPU
   ✓ Deploy en producción (Vercel + Railway)
   ✓ Migración de TensorFlow a TFLite para optimización
+  ✓ Iteración continua de bugs y mejoras post-deploy
 
 
 ENDPOINTS DE VERIFICACIÓN
@@ -98,3 +139,11 @@ ENDPOINTS DE VERIFICACIÓN
 Frontend:     https://panelcrewcuu.vercel.app
 Health check: https://panelcrewcuu-ml-production.up.railway.app/health
 Repo:         https://github.com/jesusmanuel081/PANELCREWCUU
+
+
+VARIABLES DE ENTORNO (Vercel)
+─────────────────────────────
+NEXT_PUBLIC_SUPABASE_URL / ANON_KEY    → Supabase
+R2_ENDPOINT / ACCESS_KEY / SECRET / BUCKET → Cloudflare R2
+ML_API_URL                             → Railway ML API
+TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID  → Notificaciones
