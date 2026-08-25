@@ -8,21 +8,31 @@ export default function NewDiagnosticButton() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [location, setLocation] = useState("");
   const [panelCount, setPanelCount] = useState("");
   const [notes, setNotes] = useState("");
 
   const handleCreate = async () => {
     setLoading(true);
-    const result = await createDiagnostic(
-      location,
-      panelCount ? Number(panelCount) : null,
-      notes
-    );
-    setLoading(false);
+    setError("");
 
-    if (result.success && result.diagnosticId) {
-      router.push(`/portal/diagnostic/results/${result.diagnosticId}`);
+    try {
+      const result = await createDiagnostic(
+        location,
+        panelCount ? Number(panelCount) : null,
+        notes
+      );
+
+      if (result.success && result.diagnosticId) {
+        router.push(`/portal/diagnostic/results/${result.diagnosticId}`);
+      } else {
+        setError(result.error || "Error al crear diagnóstico. Intenta de nuevo.");
+        setLoading(false);
+      }
+    } catch (err) {
+      setError("Error de conexión. Verifica tu internet y intenta de nuevo.");
+      setLoading(false);
     }
   };
 
@@ -40,6 +50,13 @@ export default function NewDiagnosticButton() {
   return (
     <div className="bg-white border border-gray-100 rounded-xl p-6 space-y-4">
       <h3 className="font-semibold text-gray-900">Nuevo Diagnóstico</h3>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -88,7 +105,7 @@ export default function NewDiagnosticButton() {
           {loading ? "Creando..." : "Crear y Subir Fotos"}
         </button>
         <button
-          onClick={() => setOpen(false)}
+          onClick={() => { setOpen(false); setError(""); }}
           className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition-colors text-sm"
         >
           Cancelar
